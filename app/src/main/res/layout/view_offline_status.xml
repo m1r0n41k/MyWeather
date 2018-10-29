@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/offlineStatusTextView"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/colorAccent"
+          android:drawableStart="@drawable/app_ic_error_outline"
+          android:gravity="center_vertical"
+          android:drawablePadding="8dp"
+          android:orientation="vertical"
+          android:padding="8dp"
+          android:text="Offline mode. This weather was actual 100 days ago!"/>

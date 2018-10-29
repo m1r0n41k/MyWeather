@@ -15,25 +15,9 @@
  *
  * Created by  - Andrew Miroshnychenko on 10/30/18 12:47 AM
  *
- * Last modified 10/29/18 5:30 PM
+ * Last modified 10/29/18 12:19 AM
  */
 
 package com.drondon.myweather
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.drondon.myweather.ui.main.MainFragment
-
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, MainFragment.newInstance())
-                .commitNow()
-        }
-    }
-
-}
+const val DATA_BASE_NAME = "my-weather.db"
