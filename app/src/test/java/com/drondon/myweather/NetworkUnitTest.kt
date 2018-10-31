@@ -22,6 +22,7 @@ package com.drondon.myweather
 
 import com.drondon.myweather.api.ApiData
 import com.drondon.myweather.api.ApiService
+import com.drondon.myweather.di.DI
 import com.drondon.myweather.di.appModule
 import org.junit.After
 import org.junit.Before
@@ -29,6 +30,7 @@ import org.junit.Test
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext.startKoin
 import org.koin.standalone.StandAloneContext.stopKoin
+import org.koin.standalone.get
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
 import java.io.File
@@ -44,7 +46,7 @@ class NetworkUnitTest : KoinTest {
         startKoin(listOf(
             appModule,
             module {
-                single("cacheDir") { File("./build/tmp") }
+                single(DI.DIR_CACHE) { File("./build/tmp") }
                 single { ApiData("http://api.openweathermap.org/data/2.5", "a1d1dc41d71e2b1c1d329e64770bf088") }
 
             }

@@ -24,26 +24,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.drondon.myweather.DATA_BASE_NAME
-import com.drondon.myweather.ui.main.refresh
 
 @Database(entities = [CityWeather::class], version = 1, exportSchema = false)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun cityWeatherDao(): CityWeatherDao
 
     companion object {
-        // Create and pre-populate the database. See this article for more details:
-        // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
+        /**
+         * Create data base
+         * */
         fun buildDatabase(context: Context): AppDataBase {
-            return Room.databaseBuilder(context, AppDataBase::class.java, DATA_BASE_NAME)
-                .addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        refresh()
-                    }
-                })
-                .build()
+            return Room.databaseBuilder(context, AppDataBase::class.java, DATA_BASE_NAME).build()
         }
     }
 }

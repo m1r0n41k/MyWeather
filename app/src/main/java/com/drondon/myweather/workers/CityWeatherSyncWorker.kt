@@ -28,6 +28,7 @@ import com.drondon.myweather.common.ImageLoader
 import com.drondon.myweather.common.WeatherIconSource
 import com.drondon.myweather.data.CityWeatherDataSource
 import com.drondon.myweather.data.toCityWeatherList
+import com.drondon.myweather.di.DI
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -42,7 +43,7 @@ class CityWeatherSyncWorker(context: Context, workerParams: WorkerParameters) :
     private val cities = listOf(703448, 6167865, 2643743)
     private val api: ApiService by inject()
     private val dataSource: CityWeatherDataSource by inject()
-    private val imageLoader: ImageLoader by inject("contextImageLoader")
+    private val imageLoader: ImageLoader by inject(DI.IMAGE_LOADER_CONTEXT)
 
     override fun doWork(): Result {
         try {

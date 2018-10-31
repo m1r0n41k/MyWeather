@@ -33,7 +33,16 @@ import com.drondon.myweather.data.CityWeatherDataSource
 import com.drondon.myweather.workers.CityWeatherSyncWorker
 import timber.log.Timber
 
-class MainViewModel(dataSource: CityWeatherDataSource, trackers: Trackers) : ViewModel() {
+class MainViewModel(
+    dataSource: CityWeatherDataSource,
+    private val workManager: WorkManager,
+    trackers: Trackers
+) : ViewModel() {
+
+    companion object {
+        private const val TAG = "MainViewModel"
+        private const val TAG_REFRESH = "refresh"
+    }
 
     private val _networkStateLiveData = NetworkLiveData(trackers)
 
@@ -60,19 +69,13 @@ class MainViewModel(dataSource: CityWeatherDataSource, trackers: Trackers) : Vie
     fun refresh() {
         forceRefresh().apply {
             /*Convert work status to progress state*/
-            registerProgresSource()
+            registerProgressSource()
         }
     }
 
-    private fun LiveData<WorkStatus>.registerProgresSource() {
-        statusProgressLiveData?.let {
-            _progressLiveData.removeSource(it)
-        }
-
-        statusProgressLiveData = Transformations.map(this) {
-            !it.state.isFinished
-        }
-
+    private fun LiveData<WorkStatus>.registerProgressSource() {
+        statusProgressLiveData?.let { _progressLiveData.removeSource(it) }
+        statusProgressLiveData = Transformations.map(this) { !it.state.isFinished }
         statusProgressLiveData?.apply {
             _progressLiveData.addSource(this) {
                 _progressLiveData.value = it
@@ -87,16 +90,21 @@ class MainViewModel(dataSource: CityWeatherDataSource, trackers: Trackers) : Vie
         val request = OneTimeWorkRequestBuilder<CityWeatherSyncWorker>()
             .addTag(TAG_REFRESH)
             .build()
-
-        val workManager = WorkManager.getInstance()
         workManager.cancelAllWorkByTag(TAG_REFRESH)
         workManager.enqueue(request)
-        Timber.d("Sync: Work force refresh, %s", request.toString())
+        Timber.tag(TAG).d("Force refresh, %s", request.toString())
         return workManager.getStatusByIdLiveData(request.id)
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        Timber.tag(TAG).d("Cleared")
+        //Cancel refresh because app will be closed
+        workManager.cancelAllWorkByTag(TAG_REFRESH)
+    }
+
     /**
-     * Change
+     * Change progress state to false
      * */
     fun hideProgress() {
         _progressLiveData.value = false

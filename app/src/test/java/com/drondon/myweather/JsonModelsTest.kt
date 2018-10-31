@@ -21,15 +21,19 @@
 package com.drondon.myweather
 
 import com.drondon.myweather.data.WeatherResponseJsonAdapter
+import com.drondon.myweather.di.DI
 import com.drondon.myweather.di.appModule
 import com.squareup.moshi.Moshi
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext.startKoin
 import org.koin.standalone.StandAloneContext.stopKoin
+import org.koin.standalone.get
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
+import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -168,7 +172,9 @@ class JsonModelsTest : KoinTest {
 
     @Before
     fun setUp() {
-        startKoin(listOf(appModule))
+        startKoin(listOf(appModule, module {
+            single(DI.DIR_CACHE) { File("./build/tmp") }
+        }))
     }
 
     @Test
@@ -183,8 +189,6 @@ class JsonModelsTest : KoinTest {
 
         city.apply {
             assertEquals("Kiev", name)
-            assertEquals(50.43, coord.lat)
-            assertEquals(30.52, coord.lon)
             assertEquals(1, this.weather.size)
             // etc.
         }

@@ -22,17 +22,16 @@ package com.drondon.myweather.ui.main
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.transition.TransitionManager
 import android.view.*
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.drondon.myweather.R
 import com.drondon.myweather.adapter.CityWeatherAdapter
 import com.drondon.myweather.common.ImageLoader
-import com.drondon.myweather.extensions.inflate
+import com.drondon.myweather.di.DI
 import com.drondon.myweather.utils.DebounceEvent
+import com.drondon.myweather.view.StatusBar
 import kotlinx.android.synthetic.main.main_fragment.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -51,7 +50,7 @@ class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by sharedViewModel()
 
-    private val imageLoader: ImageLoader by inject("fragmentImageLoader") { ParameterList(this) }
+    private val imageLoader: ImageLoader by inject(DI.IMAGE_LOADER_FRAGMENT) { ParameterList(this) }
 
     private val refreshDebounced = object : DebounceEvent(20000) {
         override fun onDebouncedEvent() {
@@ -82,6 +81,7 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if (savedInstanceState == null) {
+            //Initial request for populate data
             refreshDebounced.performEvent()
         }
     }
@@ -108,10 +108,12 @@ class MainFragment : Fragment() {
         viewModel.networkState.observe(this, Observer {
             if (it.first == null || it.first?.isConnected == true) {
                 refreshDebounced.performEvent()
-                hideStatusView()
+                StatusBar(view, containerFooter).hide()
             } else {
                 val lastModified = TimeUnit.SECONDS.toMillis(it.second)
-                showStatusView("Offline mode. This weather was actual at ${dateFormatter.format(Date(lastModified))}!")
+                StatusBar(view, containerFooter).show(
+                    "Offline mode. This weather was actual at ${dateFormatter.format(Date(lastModified))}!"
+                )
             }
         })
     }
@@ -126,33 +128,5 @@ class MainFragment : Fragment() {
             R.id.action_refresh -> refreshDebounced.performEvent()
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    /*
-     * Show custom status view on top of the screen or update message if it is showing
-     * */
-    private fun showStatusView(message: String) {
-        val rootView = view
-        if (rootView != null) {
-            if (containerFooter.childCount == 0) {
-                TransitionManager.beginDelayedTransition(view as ViewGroup)
-                val statusView = containerFooter.inflate(R.layout.view_offline_status)
-                containerFooter.addView(statusView)
-            }
-            val statusTextView = rootView.findViewById<TextView>(R.id.offlineStatusTextView)
-            statusTextView.text = message
-        }
-    }
-
-    /*
-    * Hide status view
-    * */
-    private fun hideStatusView() {
-        val rootView = view
-        if (rootView != null && containerFooter.childCount > 0) {
-            val statusView = containerFooter.getChildAt(0)
-            TransitionManager.beginDelayedTransition(rootView as ViewGroup)
-            containerFooter.removeView(statusView)
-        }
     }
 }
