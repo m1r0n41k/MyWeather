@@ -20,4 +20,8 @@
 
 package com.drondon.myweather
 
-const val DATA_BASE_NAME = "my-weather.db"
+object Constants {
+    const val DATA_BASE_NAME = "my-weather.db"
+
+    val DEFAULT_CITIES = intArrayOf(703448, 6167865, 2643743)
+}

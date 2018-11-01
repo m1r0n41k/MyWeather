@@ -20,8 +20,6 @@
 
 package com.drondon.myweather.utils
 
-import android.os.SystemClock
-
 
 /**
  * A Debounced [DebounceEvent]
@@ -36,7 +34,7 @@ abstract class DebounceEvent(private val minimumInterval: Long = 0) {
 
     fun performEvent() {
         val previousClickTimestamp = lastEventTime
-        val currentTimestamp = SystemClock.uptimeMillis()
+        val currentTimestamp = System.currentTimeMillis()
         if (Math.abs(currentTimestamp - previousClickTimestamp) > minimumInterval) {
             lastEventTime = currentTimestamp
             onDebouncedEvent()

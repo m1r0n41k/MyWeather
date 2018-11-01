@@ -24,7 +24,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.drondon.myweather.DATA_BASE_NAME
+import com.drondon.myweather.Constants
 
 @Database(entities = [CityWeather::class], version = 1, exportSchema = false)
 abstract class AppDataBase : RoomDatabase() {
@@ -34,8 +34,12 @@ abstract class AppDataBase : RoomDatabase() {
         /**
          * Create data base
          * */
-        fun buildDatabase(context: Context): AppDataBase {
-            return Room.databaseBuilder(context, AppDataBase::class.java, DATA_BASE_NAME).build()
+        fun buildDatabase(context: Context, inMemoryDb: Boolean = false): AppDataBase {
+            return if (inMemoryDb) {
+                Room.inMemoryDatabaseBuilder(context, AppDataBase::class.java).build()
+            } else {
+                Room.databaseBuilder(context, AppDataBase::class.java, Constants.DATA_BASE_NAME).build()
+            }
         }
     }
 }

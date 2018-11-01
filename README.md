@@ -13,6 +13,6 @@ Use for build and install debug application next command:
 
 # Checklist
 
-- [ ] Prototype
+- [x] Prototype
 - [ ] Tests
 - [ ] CI

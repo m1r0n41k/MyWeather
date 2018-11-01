@@ -52,8 +52,8 @@ class StatusBar(private val rootView: View, val container: ViewGroup) {
     }
 
     /**
-    * Hide status view
-    * */
+     * Hide status view
+     * */
     fun hide() {
         if (container.childCount > 0) {
             val statusView = container.getChildAt(0)

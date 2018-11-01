@@ -38,10 +38,12 @@ buildscript {
 
         //Unit tests
         junitVersion = '4.12'
-        mockitoVersion = '2.23.0'
+        mockitoVersion = '2.21.0'
 
         //Android tests
         runnerVersion = '1.1.0'
+        androidTestVersion = '1.0.0'
+        androidCoreTestVersion = '2.0.0'
         espressoCoreVersion = '3.1.0'
     }
     repositories {

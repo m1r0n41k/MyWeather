@@ -21,12 +21,12 @@
 package com.drondon.myweather
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.drondon.myweather.di.androidModule
+import com.drondon.myweather.di.apiModule
 import com.drondon.myweather.di.appModule
 import com.drondon.myweather.workers.SyncManager
 import org.koin.android.ext.android.inject
@@ -37,10 +37,7 @@ class App : Application() {
 
     val TAG = "App_"
 
-    private val syncManager: SyncManager by inject()
-
     override fun onCreate() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate()
 
         if (BuildConfig.DEBUG) {
@@ -64,6 +61,7 @@ class App : Application() {
         startKoin(
             this, listOf(
                 appModule,
+                apiModule,
                 androidModule
             )
         )
@@ -74,6 +72,7 @@ class App : Application() {
      * */
     private fun initSync() {
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : LifecycleObserver {
+            private val syncManager: SyncManager by inject()
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun appOnForeground() {

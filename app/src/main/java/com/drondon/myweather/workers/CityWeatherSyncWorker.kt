@@ -24,11 +24,8 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.drondon.myweather.api.ApiService
-import com.drondon.myweather.common.ImageLoader
-import com.drondon.myweather.common.WeatherIconSource
 import com.drondon.myweather.data.CityWeatherDataSource
 import com.drondon.myweather.data.toCityWeatherList
-import com.drondon.myweather.di.DI
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import timber.log.Timber
@@ -40,26 +37,27 @@ import timber.log.Timber
 class CityWeatherSyncWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams), KoinComponent {
 
-    private val cities = listOf(703448, 6167865, 2643743)
+    companion object {
+        const val INPUT_DATA = "cities"
+    }
+
     private val api: ApiService by inject()
+    private val syncManager: SyncManager by inject()
     private val dataSource: CityWeatherDataSource by inject()
-    private val imageLoader: ImageLoader by inject(DI.IMAGE_LOADER_CONTEXT)
 
     override fun doWork(): Result {
         try {
-            Timber.d("CityWeatherSyncWorker: doWork()")
+            val cities = inputData.getIntArray(INPUT_DATA)?.toList() ?: emptyList()
+            Timber.d("CityWeatherSyncWorker: load weather for cities: ${cities.joinToString()}")
             val weatherResponse = api.getCitiesWeather(cities)
             val weatherList = weatherResponse.toCityWeatherList()
             return if (weatherList.isNullOrEmpty()) {
                 Timber.d("CityWeatherSyncWorker: response RETRY")
                 Result.RETRY
             } else {
-                weatherList.onEach {
-                    val iconSource = WeatherIconSource(it.icon)
-                    imageLoader.load(iconSource, null)
-                    Timber.d("CityWeatherSyncWorker: preload icon - ${iconSource.getSource()}")
-                }
                 dataSource.update(weatherList)
+                //TODO: Need to find another way to create periodically chains
+                syncManager.preloadWeatherIcons(weatherList.map { it.icon }.toTypedArray())
                 Timber.d("CityWeatherSyncWorker: response SUCCESS")
                 Result.SUCCESS
             }

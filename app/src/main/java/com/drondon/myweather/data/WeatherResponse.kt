@@ -22,29 +22,26 @@ package com.drondon.myweather.data
 
 import com.squareup.moshi.JsonClass
 
+/**
+ * Minimal models for parse only necessary part of OpenWeatherMap API
+ * */
 @JsonClass(generateAdapter = true)
 data class WeatherResponse(val cnt: Long, val list: List<City>)
 
 @JsonClass(generateAdapter = true)
-class WeatherInfo(val id: Long, val main: String, val description: String, val icon: String)
+class WeatherInfo(
+    val main: String,
+    val icon: String
+)
 
 @JsonClass(generateAdapter = true)
 class AdditionalInfo(
-    val type: Long,
-    val id: Long,
-    val message: Double,
-    val country: String,
-    val sunrise: Long,
-    val sunset: Long
+    val country: String
 )
 
 @JsonClass(generateAdapter = true)
 class MainInfo(
-    val temp: Double,
-    val pressure: Long,
-    val humidity: Long,
-    val temp_min: Long,
-    val temp_max: Long
+    val temp: Double
 )
 
 @JsonClass(generateAdapter = true)
@@ -52,7 +49,6 @@ class City(
     val sys: AdditionalInfo,
     val weather: List<WeatherInfo>,
     val main: MainInfo,
-    val visibility: Long,
     val dt: Long,
     val id: Long,
     val name: String

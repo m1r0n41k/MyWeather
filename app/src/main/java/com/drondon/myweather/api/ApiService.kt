@@ -28,11 +28,10 @@ import okhttp3.Request
 import java.io.IOException
 
 class ApiServiceImpl(
-    private val apiData: ApiData,
+    private val apiData: ApiConfiguration,
     private val client: OkHttpClient,
     private val moshi: Moshi
-) :
-    ApiService {
+) : ApiService {
 
     private fun get(url: String, withAppId: Boolean = true) =
         Request.Builder().url(url + if (withAppId) "&appid=${apiData.appId}" else "").get().build()
@@ -50,4 +49,4 @@ interface ApiService {
     fun getCitiesWeather(cities: List<Int>): WeatherResponse
 }
 
-data class ApiData(val baseUrl: String, val appId: String)
+data class ApiConfiguration(val baseUrl: String, val appId: String)

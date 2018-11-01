@@ -24,10 +24,11 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.work.impl.constraints.ConstraintListener
 import androidx.work.impl.constraints.NetworkState
-import androidx.work.impl.constraints.trackers.Trackers
+import androidx.work.impl.constraints.trackers.NetworkStateTracker
 
 
-class NetworkLiveData(private val trackers: Trackers) : LiveData<NetworkState?>(), ConstraintListener<NetworkState> {
+class NetworkLiveData(private val tracker: NetworkStateTracker) : LiveData<NetworkState?>(),
+    ConstraintListener<NetworkState> {
     override fun onConstraintChanged(newValue: NetworkState?) {
         postValue(newValue)
     }
@@ -35,12 +36,12 @@ class NetworkLiveData(private val trackers: Trackers) : LiveData<NetworkState?>(
     @SuppressLint("RestrictedApi")
     override fun onActive() {
         super.onActive()
-        trackers.networkStateTracker.addListener(this)
+        tracker.addListener(this)
     }
 
     @SuppressLint("RestrictedApi")
     override fun onInactive() {
         super.onInactive()
-        trackers.networkStateTracker.removeListener(this)
+        tracker.removeListener(this)
     }
 }

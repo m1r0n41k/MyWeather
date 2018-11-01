@@ -20,15 +20,17 @@
 
 package com.drondon.myweather.workers
 
-import androidx.lifecycle.LiveData
 import androidx.work.*
+import com.drondon.myweather.Constants
 import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SyncManager(private val workManager: WorkManager) {
 
     companion object {
-        private const val TAG_SYNC = "Sync"
+        internal const val TAG_SYNC = "Sync"
+        internal const val TAG_PRELOAD = "Preload"
         // Create a Constraints object that defines when the task should run
         private val appInBackgroundConstraints = Constraints.Builder()
             .setRequiresBatteryNotLow(true)
@@ -40,19 +42,37 @@ class SyncManager(private val workManager: WorkManager) {
     /**
      *  Setup and enqueue
      * */
-    fun startSync(): LiveData<WorkStatus> {
-        val request = PeriodicWorkRequestBuilder<CityWeatherSyncWorker>(1, TimeUnit.HOURS)
+    fun startSync(cities: IntArray = Constants.DEFAULT_CITIES): UUID {
+        val inputData = Data.Builder().putIntArray(CityWeatherSyncWorker.INPUT_DATA, cities).build()
+        val weatherRequest = PeriodicWorkRequestBuilder<CityWeatherSyncWorker>(1, TimeUnit.HOURS, 50, TimeUnit.MINUTES)
             .setConstraints(appInBackgroundConstraints)
             .addTag(TAG_SYNC)
+            .setInputData(inputData)
             .build()
-        workManager.enqueueUniquePeriodicWork(TAG_SYNC, ExistingPeriodicWorkPolicy.REPLACE, request)
-        Timber.d("SyncManager: start with: %s", request.toString())
-        return workManager.getStatusByIdLiveData(request.id)
+        workManager.enqueueUniquePeriodicWork(TAG_SYNC, ExistingPeriodicWorkPolicy.REPLACE, weatherRequest)
+        Timber.d("SyncManager: start with: %s", weatherRequest.toString())
+        return weatherRequest.id
+    }
 
+    /**
+     *  Preload weather icons
+     * */
+    fun preloadWeatherIcons(icons: Array<String>): UUID {
+        val inputData = Data.Builder().putStringArray(ImagePreloadWorker.INPUT_DATA, icons).build()
+        val preloadRequest = OneTimeWorkRequestBuilder<ImagePreloadWorker>()
+            .setConstraints(appInBackgroundConstraints)
+            .addTag(TAG_PRELOAD)
+            .setInputData(inputData)
+            .build()
+        workManager.enqueue(preloadRequest)
+        Timber.d("SyncManager: start preload weather icons: %s", preloadRequest.toString())
+        return preloadRequest.id
     }
 
     fun stopSync() {
         Timber.d("SyncManager: stop")
+        workManager.cancelUniqueWork(TAG_SYNC)
         workManager.cancelAllWorkByTag(TAG_SYNC)
+        workManager.cancelAllWorkByTag(TAG_PRELOAD)
     }
 }

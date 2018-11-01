@@ -20,9 +20,10 @@
 
 package com.drondon.myweather
 
-import com.drondon.myweather.api.ApiData
+import com.drondon.myweather.api.ApiConfiguration
 import com.drondon.myweather.api.ApiService
 import com.drondon.myweather.di.DI
+import com.drondon.myweather.di.apiModule
 import com.drondon.myweather.di.appModule
 import org.junit.After
 import org.junit.Before
@@ -30,7 +31,6 @@ import org.junit.Test
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext.startKoin
 import org.koin.standalone.StandAloneContext.stopKoin
-import org.koin.standalone.get
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
 import java.io.File
@@ -38,24 +38,29 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class NetworkUnitTest : KoinTest {
-    private val cities = listOf(703448, 6167865, 2643743)
+    private val cities = Constants.DEFAULT_CITIES
     private val apiService: ApiService by inject()
 
     @Before
     fun setUp() {
         startKoin(listOf(
             appModule,
+            apiModule,
             module {
                 single(DI.DIR_CACHE) { File("./build/tmp") }
-                single { ApiData("http://api.openweathermap.org/data/2.5", "a1d1dc41d71e2b1c1d329e64770bf088") }
-
+                single {
+                    ApiConfiguration(
+                        "http://api.openweathermap.org/data/2.5",
+                        "a1d1dc41d71e2b1c1d329e64770bf088"
+                    )
+                }
             }
         ))
     }
 
     @Test
     fun testWeatherServer() {
-        val weatherResponse = apiService.getCitiesWeather(cities)
+        val weatherResponse = apiService.getCitiesWeather(cities.toList())
         assertNotNull(weatherResponse)
         assertEquals(3, weatherResponse.cnt)
         val cities = weatherResponse.list

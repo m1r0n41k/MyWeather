@@ -21,10 +21,11 @@
 package com.drondon.myweather
 
 import androidx.work.WorkManager
-import com.drondon.myweather.api.ApiData
+import com.drondon.myweather.api.ApiConfiguration
 import com.drondon.myweather.common.TEST_EXECUTOR
 import com.drondon.myweather.data.AppDataBase
 import com.drondon.myweather.di.DI
+import com.drondon.myweather.di.apiModule
 import com.drondon.myweather.di.appModule
 import org.junit.Test
 import org.koin.dsl.module.module
@@ -45,12 +46,13 @@ class DITest : KoinTest {
         checkModules(
             listOf(
                 appModule,
+                apiModule,
                 module {
                     single(DI.DIR_CACHE) { File("/tmp") }
                     single { appDataBase }
                     single(DI.EXECUTOR_IO) { TEST_EXECUTOR }
                     single(DI.EXECUTOR_UI) { TEST_EXECUTOR }
-                    single { ApiData("", "") }
+                    single { ApiConfiguration("", "") }
                     single { workManager } //Use WorkManagerTestInitHelper for Android tests
                 }
             )

@@ -25,7 +25,7 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.work.WorkManager
 import androidx.work.impl.constraints.trackers.Trackers
-import com.drondon.myweather.api.ApiData
+import com.drondon.myweather.api.ApiConfiguration
 import com.drondon.myweather.api.ApiService
 import com.drondon.myweather.api.ApiServiceImpl
 import com.drondon.myweather.common.*
@@ -107,8 +107,9 @@ val androidModule = module {
     single(DI.IMAGE_LOADER_CONTEXT) { ContextImageLoader(get()) as ImageLoader }
 
     single { Trackers.getInstance(get()) }
+    single { get<Trackers>().networkStateTracker }
 
-    single { ApiData("https://api.openweathermap.org/data/2.5", "a1d1dc41d71e2b1c1d329e64770bf088") }
+    single { ApiConfiguration("https://api.openweathermap.org/data/2.5", "a1d1dc41d71e2b1c1d329e64770bf088") }
 
     single { WorkManager.getInstance() }
 }
@@ -131,13 +132,16 @@ val appModule = module {
         }) as Interceptor
     }
     single { Moshi.Builder().build() }
+
     single { AppExecutorsImpl(get(DI.EXECUTOR_IO), get(DI.EXECUTOR_UI)) as AppExecutors }
 
     // Data sources
     single { get<AppDataBase>().cityWeatherDao() }
     single { CityWeatherRepository(get(), get()) as CityWeatherDataSource }
 
-    single { ApiServiceImpl(get(), get(), get()) as ApiService }
-
     single { SyncManager(get()) }
+}
+
+val apiModule = module {
+    single { ApiServiceImpl(get(), get(), get()) as ApiService }
 }

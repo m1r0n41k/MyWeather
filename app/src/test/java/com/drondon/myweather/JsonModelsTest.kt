@@ -30,7 +30,6 @@ import org.junit.Test
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext.startKoin
 import org.koin.standalone.StandAloneContext.stopKoin
-import org.koin.standalone.get
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
 import java.io.File

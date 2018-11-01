@@ -24,6 +24,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 androidExtensions {
@@ -71,14 +74,33 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
 
     // Unit tests
-    testImplementation "androidx.room:room-testing:$rootProject.roomVersion"
-    testImplementation "android.arch.work:work-testing:$rootProject.workVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$rootProject.kotlinVersion"
     testImplementation "junit:junit:$rootProject.junitVersion"
     testImplementation "org.mockito:mockito-inline:$rootProject.mockitoVersion"
-    // Koin for Unit tests
     testImplementation "org.koin:koin-test:$rootProject.koinVersion"
 
+    // Android tests
+    androidTestImplementation "androidx.arch.core:core-testing:$rootProject.androidCoreTestVersion"
+
+    // JUnit
+    androidTestImplementation "androidx.test:core:$rootProject.androidTestVersion"
+    androidTestImplementation "androidx.test.ext:junit:$rootProject.androidTestVersion"
+
     androidTestImplementation "androidx.test:runner:$rootProject.runnerVersion"
+    androidTestImplementation "androidx.test:rules:$rootProject.runnerVersion"
+
+    // Espresso
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoCoreVersion"
+
+    androidTestImplementation "android.arch.work:work-testing:$rootProject.workVersion"
+
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$rootProject.kotlinVersion"
+
+    // Mockito
+    androidTestImplementation "org.mockito:mockito-android:$rootProject.mockitoVersion"
+
+    // Koin
+    androidTestImplementation("org.koin:koin-test:$rootProject.koinVersion") {
+        exclude group: 'org.mockito'
+    }
 }

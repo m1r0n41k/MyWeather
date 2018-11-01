@@ -26,6 +26,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.drondon.myweather.Constants
 import com.drondon.myweather.R
 import com.drondon.myweather.adapter.CityWeatherAdapter
 import com.drondon.myweather.common.ImageLoader
@@ -55,7 +56,8 @@ class MainFragment : Fragment() {
     private val refreshDebounced = object : DebounceEvent(20000) {
         override fun onDebouncedEvent() {
             //Refresh data if user launch app
-            viewModel.refresh()
+            //Data hardcoded for current version
+            viewModel.refresh(Constants.DEFAULT_CITIES)
         }
 
         override fun onSkippedEvent() {

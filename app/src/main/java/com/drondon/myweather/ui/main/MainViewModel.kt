@@ -24,10 +24,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkStatus
-import androidx.work.impl.constraints.trackers.Trackers
+import androidx.work.impl.constraints.trackers.NetworkStateTracker
 import com.drondon.myweather.data.CityWeather
 import com.drondon.myweather.data.CityWeatherDataSource
 import com.drondon.myweather.workers.CityWeatherSyncWorker
@@ -36,7 +37,7 @@ import timber.log.Timber
 class MainViewModel(
     dataSource: CityWeatherDataSource,
     private val workManager: WorkManager,
-    trackers: Trackers
+    tracker: NetworkStateTracker
 ) : ViewModel() {
 
     companion object {
@@ -44,7 +45,7 @@ class MainViewModel(
         private const val TAG_REFRESH = "refresh"
     }
 
-    private val _networkStateLiveData = NetworkLiveData(trackers)
+    private val _networkStateLiveData = NetworkLiveData(tracker)
 
     val networkState = Transformations.map(_networkStateLiveData) {
         Pair(it, cityWeather.value?.minBy { city -> city.modifiedTime }?.modifiedTime ?: 0)
@@ -66,8 +67,8 @@ class MainViewModel(
 
     private var statusProgressLiveData: LiveData<Boolean>? = null
 
-    fun refresh() {
-        forceRefresh().apply {
+    fun refresh(cities: IntArray) {
+        forceRefresh(cities).apply {
             /*Convert work status to progress state*/
             registerProgressSource()
         }
@@ -86,9 +87,15 @@ class MainViewModel(
     /*
     * Create worker request and return status LiveData
     * */
-    private fun forceRefresh(): LiveData<WorkStatus> {
+    private fun forceRefresh(cities: IntArray): LiveData<WorkStatus> {
         val request = OneTimeWorkRequestBuilder<CityWeatherSyncWorker>()
             .addTag(TAG_REFRESH)
+            .setInputData(
+                Data.Builder().putIntArray(
+                    CityWeatherSyncWorker.INPUT_DATA,
+                    cities
+                ).build()
+            )
             .build()
         workManager.cancelAllWorkByTag(TAG_REFRESH)
         workManager.enqueue(request)
