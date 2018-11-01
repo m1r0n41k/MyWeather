@@ -9,3 +9,9 @@ jobs:
           command: |
             ./gradlew :app:testDebugUnitTest
             ./gradlew :app:assembleDebugAndroidTest
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - test
